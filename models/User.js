@@ -14,7 +14,7 @@ const userSchema = mongoose.Schema({
     },
     password: {
         type: String,
-        minlength: 16,
+        minlength: 8,
     },
     // 역할에 따라 숫자를 부여 , 0은 일반유저 
     role: {
@@ -32,5 +32,8 @@ const userSchema = mongoose.Schema({
     }
 })
 
+
+// schema는 model로 감싸줘야함
 const User = mongoose.model('User', userSchema);
-module.exports = { User }
+// 모델을 다른 파일에서도 쓸수 있게 exports 
+module.exports = { User };
