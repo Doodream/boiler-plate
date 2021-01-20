@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
+
 // salt를 이용해서 비밀번호를 암호화하는데 saltRounds는 salt의 글자 수이다.
 const saltRounds = 10;
 
@@ -66,6 +68,16 @@ userSchema.methods.comparePassword = function (plainPassword, cb) {
     bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
         if (err) return cb(err);
         cb(null, isMatch);
+    })
+}
+
+userSchema.methods.genToken = function (cb) {
+    var user = this;
+    var token = jwt.sign(user._id.toHexString(), 'doodreamToken');
+    user.token = token;
+    user.save(function (err, user) {
+        if (err) return cb(err);
+        cb(null, user);
     })
 }
 // schema는 model로 감싸줘야함
