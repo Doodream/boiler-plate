@@ -55,11 +55,19 @@ userSchema.pre('save', function (next) {
                 next();
             });
         });
+    } else {
+        next();
     }
 
 })
 
-
+userSchema.methods.comparePassword = function (plainPassword, cb) {
+    //
+    bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
+        if (err) return cb(err);
+        cb(null, isMatch);
+    })
+}
 // schema는 model로 감싸줘야함
 const User = mongoose.model('User', userSchema);
 // 모델을 다른 파일에서도 쓸수 있게 exports 

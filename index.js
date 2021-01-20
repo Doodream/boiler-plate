@@ -37,6 +37,33 @@ app.post('/register', (req, res) => {
     })
 })
 
+app.post('/login', (req, res) => {
+    const user = new User(req.body);
+    User.findOne({ email: req.body.email }, (err, user) => {
+        if (!user) {
+            return res.json({
+                loginSuccess: false,
+                message: "제공된 이메일에 해당하는 사람이 없습니다."
+            })
+        }
+
+        user.comparePassword(req.body.password, (err, isMatch) => {
+            if (!isMatch) {
+                return res.json({
+                    loginSuccess: false,
+                    message: "비밀번호가 틀렸습니다."
+                })
+            } else {
+                return res.json({
+                    loginSuccess: true,
+                    message: "로그인되었습니다."
+                })
+            }
+        })
+    })
+
+})
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })
