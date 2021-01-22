@@ -3,10 +3,14 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require("cookie-parser");
 const { User } = require('./models/User');
+const { auth } = require('./middleware/auth');
 const config = require('./config/key');
+const cors = require('cors');
 
 const app = express()
 const port = 4000
+
+const cors_origin = ['http://localhost:3000'];
 
 // bodyParser에 대한 옵션추가
 
@@ -16,12 +20,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+app.use(cors({
+    origin: cors_origin,
+    credentials: true
+}));
+
 mongoose.connect(config.mongoURI, {
     useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false
 }).then(() => console.log('MongoDB Conected...')).catch(err => console.log(err));
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
+})
+
+app.get('/api/hello', (req, res) => {
+    res.send("안녕 나는 두드림의 두번째 서버야")
 })
 
 app.post('/register', (req, res) => {
@@ -58,7 +71,6 @@ app.post('/login', (req, res) => {
             }
 
             user.genToken((err, user) => {
-                console.log("err", err);
                 if (err) return res.status(400).send(err);
                 res.cookie("x_auth", user.token)
                     .status(200)
@@ -71,6 +83,30 @@ app.post('/login', (req, res) => {
 
 })
 
+app.get('/api/users/auth', auth, (req, res) => {
+    // 미들웨어를 모두 통과함 // Authentication : true
+    res.status(200).json({
+        _id: req.user._id,
+        // role = 0은 일반 유저이므로 어드민이 아니다.
+        isAdmin: req.user.role === 0 ? false : true,
+        isAuth: true,
+        email: req.user.email,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        image: req.user.image,
+    })
+})
+
+app.get('/api/users/logout', auth, (req, res) => {
+    User.findOneAndUpdate({ _id: req.user._id }, { token: "" }, (err, user) => {
+        if (err) return res.json({ success: false, err });
+        return res.status(200).send({
+            success: true
+        })
+    })
+})
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })
+
