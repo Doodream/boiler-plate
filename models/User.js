@@ -80,6 +80,19 @@ userSchema.methods.genToken = function (cb) {
         cb(null, user);
     })
 }
+
+userSchema.statics.findByToken = function (token, cb) {
+    var user = this;
+    // 토큰을 디코드 하기 
+    jwt.verify(token, 'doodreamToken', function (err, decoded) {
+        user.findOne({ "_id": decoded }, function (err, user) {
+            console.log(user);
+            if (err) { return cb(err) };
+            cb(null, user);
+        });
+    })
+}
+
 // schema는 model로 감싸줘야함
 const User = mongoose.model('User', userSchema);
 // 모델을 다른 파일에서도 쓸수 있게 exports 
