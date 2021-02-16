@@ -36,7 +36,9 @@ const userSchema = mongoose.Schema({
     // 로그인 유효성 토큰의 사용 기한
     tokenExp: {
         type: Number,
-    }
+    },
+    gender: String,
+    nationality: String
 })
 
 userSchema.pre('save', function (next) {

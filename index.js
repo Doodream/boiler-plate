@@ -6,6 +6,8 @@ const { User } = require('./models/User');
 const { auth } = require('./middleware/auth');
 const config = require('./config/key');
 const cors = require('cors');
+const multer = require("multer");
+const path = require("path");
 
 const app = express()
 const port = 4000
@@ -25,6 +27,22 @@ app.use(cors({
     credentials: true
 }));
 
+app.use(express.static("public"));
+
+
+const storage = multer.diskStorage({
+    destination: "./public/img/",
+    filename: function (req, file, cb) {
+        cb(null, "imgfile" + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 1000000 }
+});
+
+
 mongoose.connect(config.mongoURI, {
     useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false
 }).then(() => console.log('MongoDB Conected...')).catch(err => console.log(err));
@@ -34,25 +52,62 @@ app.get('/', (req, res) => {
 })
 
 app.get('/api/hello', (req, res) => {
-    res.send("안녕 나는 두드림의 두번째 서버야")
+    res.json({
+        message: "안녕 나는 두번째 백엔드야"
+    });
 })
 
-app.post('/register', (req, res) => {
+app.post('/api/signup', (req, res) => {
     //회원가입 할 때 필요한 정보들을 Client 에서 가져오면 
     //그것들을 데이터 베이스에 넣어준다.
 
     const user = new User(req.body);
-    user.save((err, doc) => {
-        // 데이터 저장에 실패했을 경우 클라이언트에 err 반응 메세지를 보낸다.
-        if (err) return res.json({ success: false, err })
-        // 데이터 저장에 성공하면 
-        return res.status(200).json({
+    User.findOne({ email: req.body.email }, (err, isUser) => {
+        if (isUser) {
+            return res.json({
+                success: false,
+                message: "같은 이메일로 가입된 정보가 있습니다."
+            })
+        }
+
+        user.save((err, doc) => {
+            // 데이터 저장에 실패했을 경우 클라이언트에 err 반응 메세지를 보낸다.
+            if (err) return res.json({ success: false, err })
+            // 데이터 저장에 성공하면 
+            return res.status(200).json({
+                success: true,
+                message: "환영합니다! 카카오톡 아이디로 회원가입되셨습니다.",
+            })
+        })
+    })
+})
+
+// 내계정에서 계정 설정
+app.post('/api/account/setting', (req, res) => {
+    const user = new User(req.body);
+
+    User.findOneAndUpdate({ email: req.body.email }, {
+        name: req.body.name,
+        gender: req.body.gender,
+        nationality: req.body.nationality,
+        image: req.body.image
+    }, (err, user) => {
+        if (err) return res.json({ success: false, err });
+        return res.status(200).send({
             success: true
         })
     })
 })
 
-app.post('/login', (req, res) => {
+app.post("/api/upload/image", upload.single("image"), function (req, res, next) {
+    //console.log(req.file);
+    res.status(200).send({
+        fileName: req.file.filename
+    });
+    console.log(req.file.filename);
+});
+
+app.post('/api/login/kakao/', (req, res) => {
     const user = new User(req.body);
     User.findOne({ email: req.body.email }, (err, user) => {
         if (!user) {
@@ -61,7 +116,29 @@ app.post('/login', (req, res) => {
                 message: "제공된 이메일에 해당하는 사람이 없습니다."
             })
         }
+        res.cookie("x_auth", user.token)
+            .status(200)
+            .json({
+                loginSuccess: true,
+                token: user._id,
+                email: user.email,
+                image: user.image,
+                gender: user.gender,
+                name: user.name,
+                nationality: user.nationality,
+            })
+    })
 
+})
+app.post('/api/login', (req, res) => {
+    const user = new User(req.body);
+    User.findOne({ email: req.body.email }, (err, user) => {
+        if (!user) {
+            return res.json({
+                loginSuccess: false,
+                message: "제공된 이메일에 해당하는 사람이 없습니다."
+            })
+        }
         user.comparePassword(req.body.password, (err, isMatch) => {
             if (!isMatch) {
                 return res.json({
@@ -75,7 +152,13 @@ app.post('/login', (req, res) => {
                 res.cookie("x_auth", user.token)
                     .status(200)
                     .json({
-                        loginSuccess: true, userId: user._id
+                        loginSuccess: true,
+                        token: user._id,
+                        email: user.email,
+                        image: user.image,
+                        gender: user.gender,
+                        name: user.name,
+                        nationality: user.nationality,
                     })
             })
         })
@@ -92,7 +175,7 @@ app.get('/api/users/auth', auth, (req, res) => {
         isAuth: true,
         email: req.user.email,
         name: req.user.name,
-        lastname: req.user.lastname,
+        //lastname: req.user.lastname,
         image: req.user.image,
     })
 })
