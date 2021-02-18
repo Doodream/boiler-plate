@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require("cookie-parser");
 const { User } = require('./models/User');
+const { Review } = require('./models/Review');
 const { auth } = require('./middleware/auth');
 const config = require('./config/key');
 const cors = require('cors');
@@ -49,12 +50,6 @@ mongoose.connect(config.mongoURI, {
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
-})
-
-app.get('/api/hello', (req, res) => {
-    res.json({
-        message: "안녕 나는 두번째 백엔드야"
-    });
 })
 
 app.post('/api/signup', (req, res) => {
@@ -107,6 +102,19 @@ app.post("/api/upload/image", upload.single("image"), function (req, res, next) 
     console.log(req.file.filename);
 });
 
+app.post('/api/upload/review', (req, res) => {
+    console.log(req.body)
+    const review = new Review(req.body);
+    review.save((err, doc) => {
+        if (err) return res.json({ reviewSave: false, err })
+
+        return res.status(200).json({
+            reviewSave: true,
+            message: "리뷰 저장에 성공하셨습니다.",
+        })
+    })
+})
+
 app.post('/api/login/kakao/', (req, res) => {
     const user = new User(req.body);
     User.findOne({ email: req.body.email }, (err, user) => {
@@ -116,17 +124,20 @@ app.post('/api/login/kakao/', (req, res) => {
                 message: "제공된 이메일에 해당하는 사람이 없습니다."
             })
         }
-        res.cookie("x_auth", user.token)
-            .status(200)
-            .json({
-                loginSuccess: true,
-                token: user._id,
-                email: user.email,
-                image: user.image,
-                gender: user.gender,
-                name: user.name,
-                nationality: user.nationality,
-            })
+        user.genToken((err, user) => {
+            if (err) return res.status(400).send(err);
+            res.cookie("x_auth", user.token)
+                .status(200)
+                .json({
+                    loginSuccess: true,
+                    token: user._id,
+                    email: user.email,
+                    image: user.image,
+                    gender: user.gender,
+                    name: user.name,
+                    nationality: user.nationality,
+                })
+        })
     })
 
 })
@@ -187,6 +198,19 @@ app.get('/api/users/logout', auth, (req, res) => {
             success: true
         })
     })
+})
+
+app.post('/api/download/reviews', (req, res) => {
+    Review.find({}, (err, docs) => {
+        if (err) {
+            console.log(err);
+            return res.send({
+                success: false,
+                message: "서버 데이터 전송에 실패하였습니다."
+            })
+        }
+        return res.status(200).send(docs);
+    });
 })
 
 app.listen(port, () => {
