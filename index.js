@@ -11,9 +11,12 @@ const multer = require("multer");
 const path = require("path");
 
 const app = express()
+
 const port = 4000
 
 const cors_origin = ['http://localhost:3000'];
+
+
 
 // bodyParser에 대한 옵션추가
 
@@ -213,7 +216,9 @@ app.post('/api/download/reviews', (req, res) => {
     });
 })
 
-app.listen(port, () => {
+var server = app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })
+server.keepAliveTimeout = 65000; // Ensure all inactive connections are terminated by the ALB, by setting this a few seconds higher than the ALB idle timeout
+server.headersTimeout = 66000; // Ensure the headersTimeout is set higher than the keepAliveTimeout due to this nodejs regression bug: https://github.com/nodejs/node/issues/27363
 
