@@ -14,7 +14,7 @@ const app = express()
 
 const port = 4000
 
-const cors_origin = ['http://localhost:3000'];
+const cors_origin = ['https://tooravel.de'];
 
 
 
@@ -28,7 +28,8 @@ app.use(cookieParser());
 
 app.use(cors({
     origin: cors_origin,
-    credentials: true
+    credentials: true,
+    optionsSuccessStatus: 200
 }));
 
 app.use(express.static("public"));
