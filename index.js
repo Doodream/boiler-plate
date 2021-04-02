@@ -13,7 +13,8 @@ const http = require('http');
 
 
 const app = express()
-const port = 80;
+
+const port = 4000
 
 const cors_origin = ['https://tooravel.de'];
 
@@ -218,8 +219,8 @@ app.post('/api/download/reviews', (req, res) => {
     });
 })
 
-var server = http.createServer(app).listen(port, () => {
-    console.log(`Tooravel_backend Listen ... http ${port}`);
+var server = http.createServer(app).listen(4000, () => {
+    console.log('Tooravel_backend Listen ... http');
 });
 
 server.keepAliveTimeout = 65000; // Ensure all inactive connections are terminated by the ALB, by setting this a few seconds higher than the ALB idle timeout
