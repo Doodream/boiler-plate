@@ -9,6 +9,8 @@ const config = require('./config/key');
 const cors = require('cors');
 const multer = require("multer");
 const path = require("path");
+const http = require('http');
+
 
 const app = express()
 
@@ -217,9 +219,10 @@ app.post('/api/download/reviews', (req, res) => {
     });
 })
 
-var server = app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
-})
+var server = http.createServer(app).listen(4000, () => {
+    console.log('Tooravel_backend Listen ... http');
+});
+
 server.keepAliveTimeout = 65000; // Ensure all inactive connections are terminated by the ALB, by setting this a few seconds higher than the ALB idle timeout
 server.headersTimeout = 66000; // Ensure the headersTimeout is set higher than the keepAliveTimeout due to this nodejs regression bug: https://github.com/nodejs/node/issues/27363
 
