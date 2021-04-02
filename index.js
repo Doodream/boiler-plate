@@ -14,7 +14,7 @@ const http = require('http');
 
 const app = express()
 
-const port = 80;
+const port = 8080;
 
 const cors_origin = ['https://tooravel.de'];
 
