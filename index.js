@@ -14,7 +14,7 @@ const http = require('http');
 
 const app = express()
 
-const port = 4000
+const port = 80;
 
 const cors_origin = ['https://tooravel.de'];
 
@@ -219,7 +219,7 @@ app.post('/api/download/reviews', (req, res) => {
     });
 })
 
-var server = http.createServer(app).listen(4000, () => {
+var server = http.createServer(app).listen(port, () => {
     console.log('Tooravel_backend Listen ... http');
 });
 
