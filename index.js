@@ -16,7 +16,7 @@ const app = express()
 
 const port = 8080;
 
-const cors_origin = ['https://tooravel.de'];
+const cors_origin = ['https://tooravel-front.vercel.app/'];
 
 
 
