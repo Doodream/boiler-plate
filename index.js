@@ -221,7 +221,12 @@ app.post('/api/download/reviews', (req, res) => {
 
 var server = http.createServer(app).listen(port, () => {
     console.log('Tooravel_backend Listen ... http');
-    console.log("processing on " + process.env.NODE_ENV + " mode");
+    if (process.env.NODE_ENV === 'production') {
+        console.log("processing on production mode");
+    } else {
+        console.log("processing on development mode");
+    }
+
 });
 
 server.keepAliveTimeout = 65000; // Ensure all inactive connections are terminated by the ALB, by setting this a few seconds higher than the ALB idle timeout
