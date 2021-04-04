@@ -16,7 +16,7 @@ const app = express()
 
 const port = 8080;
 
-const cors_origin = ['https://tooravel-front.vercel.app/'];
+const cors_origin = ['https://tooravel-front.vercel.app'];
 
 
 
@@ -221,6 +221,7 @@ app.post('/api/download/reviews', (req, res) => {
 
 var server = http.createServer(app).listen(port, () => {
     console.log('Tooravel_backend Listen ... http');
+    console.log("processing on " + process.env.NODE_ENV + " mode");
 });
 
 server.keepAliveTimeout = 65000; // Ensure all inactive connections are terminated by the ALB, by setting this a few seconds higher than the ALB idle timeout
