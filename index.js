@@ -10,18 +10,18 @@ const cors = require('cors');
 const multer = require("multer");
 const path = require("path");
 const http = require('http');
+const { ContactSupport } = require('@material-ui/icons');
 
 
 const app = express()
 
 const port = 8080;
 
-const cors_origin = ['https://tooravel-front.vercel.app'];
+const cors_origin = ['http://localhost:3000'];
 
 
 
 // bodyParser에 대한 옵션추가
-
 // application/x-www-form-urlencoded 타입으로 된 파일을 분석해서 가져올수 있게 하는 옵션
 app.use(bodyParser.urlencoded({ extended: true }));
 // applicaiton/json 타입으로 된 파일을 분석해서 가져올 수 있게 하는 옵션 
@@ -70,14 +70,13 @@ app.post('/api/signup', (req, res) => {
                 message: "같은 이메일로 가입된 정보가 있습니다."
             })
         }
-
         user.save((err, doc) => {
             // 데이터 저장에 실패했을 경우 클라이언트에 err 반응 메세지를 보낸다.
             if (err) return res.json({ success: false, err })
             // 데이터 저장에 성공하면 
             return res.status(200).json({
                 success: true,
-                message: "환영합니다! 카카오톡 아이디로 회원가입되셨습니다.",
+                message: "환영합니다! 성공적으로 회원가입되셨습니다.",
             })
         })
     })
