@@ -10,8 +10,6 @@ const cors = require('cors');
 const multer = require("multer");
 const path = require("path");
 const http = require('http');
-const { ContactSupport } = require('@material-ui/icons');
-
 
 const app = express()
 
