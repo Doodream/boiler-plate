@@ -15,9 +15,7 @@ const app = express()
 
 const port = 8080;
 
-const cors_origin = ['http://localhost:3000'];
-
-
+const cors_origin = ['https://tooravel-front.vercel.app', 'http://localhost:3000'];
 
 // bodyParser에 대한 옵션추가
 // application/x-www-form-urlencoded 타입으로 된 파일을 분석해서 가져올수 있게 하는 옵션
